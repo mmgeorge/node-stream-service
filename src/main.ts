@@ -1,6 +1,7 @@
 import WebSocket, { Server, ServerOptions,  } from "ws";
 import * as readline from "readline"
-import { createFeatureMessage, initFeatureSet } from "./lib";
+import { MockService, FeatureSet, Polyline } from "./MockService";
+import fetch from "node-fetch";
 
 type Message = string | Buffer | ArrayBuffer | Buffer[];
 
@@ -94,6 +95,13 @@ class StreamServer extends Server {
   }
 }
 
+// Fetch polylines to feed to our mock service
+async function fetchPolylines (): Promise<FeatureSet<Polyline>> {
+  const response = await fetch("https://www.usda.gov/giseas1/rest/services/BioRefineryTool/DemandInfrastructure_IdentifyLayers/MapServer/9/query?where=1%3D1&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&having=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&historicMoment=&returnDistinctValues=false&resultOffset=&resultRecordCount=&queryByDistance=&returnExtentOnly=false&datumTransformation=&parameterValues=&rangeValues=&quantizationParameters=&featureEncoding=esriDefault&f=json");
+
+  return response.json() as Promise<FeatureSet<Polyline>>;
+}
+
 async function main(): Promise<void> {
   const server = new StreamServer({ port: 8000, maxBufferredAmount: 256 });
   const rl = readline.createInterface({
@@ -101,9 +109,13 @@ async function main(): Promise<void> {
     output: process.stdout
   });
 
-  const highways = await initFeatureSet();
+  const mockService = new MockService({});
+  const data = await fetchPolylines();
+
+  mockService.initialize(data);
+  
   const intervalId = setInterval(() => {
-    const message = createFeatureMessage(highways);
+    const message = mockService.next();
     server.broadcast(message);
   }, 200);
 
