@@ -18,7 +18,7 @@ Now compile and run the server:
 npm start 
 ```
 
-The server should now be running on port `8000`. To use this, you will need to create a 4.17+ app with a StreamLayer that uses the new `websocketUrl` property pointing to `ws://localhost:8000`. Additionally you will need to specify the service's `objectIdField`, `trackIdField`, `fields`, and `geometryType` to make use of it. See example.html to see the metadata needed for this specific mock service. 
+The server should now be running on port `8000`. Verify this by opening example.html. To use this, you will need to create a 4.17+ app with a StreamLayer that uses the new `websocketUrl` property pointing to `ws://localhost:8000`. Additionally you will need to specify the service's `objectIdField`, `trackIdField`, `fields`, and `geometryType` to make use of it. See example.html to see the metadata needed for this specific mock service. 
 
 
 ### Requirements for Custom Stream Services
