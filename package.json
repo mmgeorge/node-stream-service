@@ -12,12 +12,10 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node-fetch": "^2.5.7",
-    "ts-loader": "^8.0.3",
-    "typescript": "^4.0.2",
-    "webpack": "^4.44.1"
+    "@types/ws": "^7.2.6",
+    "typescript": "^4.0.2"
   },
   "dependencies": {
-    "@types/ws": "^7.2.6",
     "node-fetch": "^2.6.1",
     "ws": "^7.3.1"
   }
