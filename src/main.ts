@@ -125,7 +125,7 @@ async function main(): Promise<void> {
 
   console.log("Started listening on port 8080");
 
-  rl.question("Press any key to stop server", (_response: string) => {
+  rl.question("Press ENTER to stop server", (_response: string) => {
     console.log("Closing Server...")
     clearInterval(intervalId);
     server.close();
