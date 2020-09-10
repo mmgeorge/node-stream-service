@@ -22,6 +22,8 @@ interface IHandshakeMessage {
   outFields?: string[]
 }
 
+const BROADCAST_INTERVAL = 200;
+
 class StreamServer extends Server {
   constructor(options: ServerOptions & StreamServerOptions) {
     super(options);
@@ -31,7 +33,7 @@ class StreamServer extends Server {
 
   options: ServerOptions & StreamServerOptions;
 
-  socketInfo = new Map<WebSocket, SocketInfo>();
+  readonly socketInfo = new Map<WebSocket, SocketInfo>();
 
   broadcast(message: string): void {
     for (const socket of this.clients) {
@@ -44,7 +46,7 @@ class StreamServer extends Server {
 
   private _onConnection(socket: WebSocket): void {
     socket.on("message", (message) => this._onMessage(socket, message));
-    socket.on("close", this._onClose.bind(this));
+    socket.on("close", (code, reason) => this._onClose(socket, code, reason));
     socket.on("error", this._onError.bind(this));
   }
 
@@ -86,12 +88,14 @@ class StreamServer extends Server {
     this._handshake(socket, message);
   }
 
-  private _onClose(code: number, reason: string): void {
-    console.log("Websocket closed", code, reason);
+  private _onClose(socket: WebSocket, _code: number, _reason: string): void {
+    if (this.socketInfo.has(socket)) {
+      this.socketInfo.delete(socket);
+    }
   }
 
   private _onError(error: Error): void {
-    console.debug("Websocket erroed", error, "for weboscket");
+    console.debug("Websocket errored", error);
   }
 }
 
@@ -117,7 +121,7 @@ async function main(): Promise<void> {
   const intervalId = setInterval(() => {
     const message = mockService.next();
     server.broadcast(message);
-  }, 200);
+  }, BROADCAST_INTERVAL);
 
   console.log("Started listening on port 8080");
 
