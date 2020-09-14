@@ -31,7 +31,7 @@ export interface MockServiceConfig {
   trackedAssets: number,
   pageSize: number,
   distStep: number,
-  extrudePolygons: false
+  extrudePolygons: boolean
 }
 
 
