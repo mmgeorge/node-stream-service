@@ -5,7 +5,7 @@ This code should only be viewed as a reference, and is not production ready. A r
 ### Setup 
 First verify that you are using nodejs 14.x.x: 
 ```
-nodejs -v
+node -v
 ```
 
 Install dependencies 
