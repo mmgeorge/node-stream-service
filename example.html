@@ -43,7 +43,7 @@
    }
 
   </style>
-  
+
   <link
     rel="stylesheet"
     href="https://js.arcgis.com/next/esri/themes/light/main.css"
@@ -62,8 +62,10 @@
         popupTemplate: {
           content: "OBJECTID={OBJECTID}, TRACKID={TRACKID}",
         },
-        
+
         webSocketUrl: "ws://localhost:8000",
+
+        objectIdField: "OBJECTID",
 
         fields: [
           {
@@ -139,7 +141,7 @@
 </head>
 <body>
   <div id="viewDiv"></div>
-  <div id="info"> 
+  <div id="info">
     <div id="connectionStatus" class="esri-widget">Disconnected</div>
     <div id="updateRate" class="esri-widget">0 (0)</div>
   </div>
