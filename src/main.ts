@@ -11,7 +11,7 @@ interface SocketInfo {
 
 interface StreamServerOptions {
   // Max KB to buffer per client
-  maxBufferredAmount: number; 
+  maxBufferredAmount: number;
 }
 
 interface IHandshakeMessage {
@@ -75,7 +75,7 @@ class StreamServer extends Server {
       console.debug("Got error on handshake", e);
       socket.close();
     }
-    
+
   }
 
   private _onMessage(socket: WebSocket, message: Message): void {
@@ -117,13 +117,13 @@ async function main(): Promise<void> {
   const data = await fetchPolylines();
 
   mockService.initialize(data);
-  
+
   const intervalId = setInterval(() => {
     const message = mockService.next();
     server.broadcast(message);
   }, BROADCAST_INTERVAL);
 
-  console.log("Started listening on port 8080");
+  console.log("Started listening on port 8000");
 
   rl.question("Press ENTER to stop server", (_response: string) => {
     console.log("Closing Server...")
@@ -135,5 +135,3 @@ async function main(): Promise<void> {
 
 
 main();
-
-
