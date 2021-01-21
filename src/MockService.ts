@@ -46,7 +46,7 @@ export class MockService {
 
   private static _defaults(): MockServiceConfig {
     return {
-      trackedAssets: 24000,
+      trackedAssets: 100_000,
       pageSize: 8000,
       distStep: 0.05 * 3,
       extrudePolygons: false,
@@ -75,7 +75,7 @@ export class MockService {
     if (start === 0) {
       this._updatePositions(polylines);
     }
-    
+
     for (let i = start; i < end; i++) {
       const feature = this._lastObservations[i];
 
@@ -97,8 +97,6 @@ export class MockService {
     const vertexSum = this._sumPolylineVertices(polylines);
     const vertsPerAsset = vertexSum / this._config.trackedAssets;
 
-    let vertexPos = 0;
-
     for (let featureIndex = 0; featureIndex < polylines.features.length; featureIndex++) {
       const feature = polylines.features[featureIndex];
       const paths = feature.geometry.paths;
@@ -107,8 +105,8 @@ export class MockService {
         const path = paths[pathIndex];
 
         for (let vertPos = 0; vertPos < (path.length - 1); vertPos += vertsPerAsset) {
-          const vertIndex = Math.floor(vertexPos);
-          const dist = vertexPos - vertIndex;
+          const vertIndex = Math.floor(vertPos);
+          const dist = vertPos - vertIndex;
 
           vertexPositions.push(featureIndex);
           vertexPositions.push(pathIndex);
