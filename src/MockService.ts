@@ -46,9 +46,9 @@ export class MockService {
 
   private static _defaults(): MockServiceConfig {
     return {
-      trackedAssets: 100_000,
-      pageSize: 8000,
-      distStep: 0.05 * 3,
+      trackedAssets: 3000,  // number of points
+      pageSize: 3000,       // how many points to update in one cycle
+      distStep: 0.5,        // speed, as percentage of the segment
       extrudePolygons: false,
     }
   }

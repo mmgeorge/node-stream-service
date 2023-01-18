@@ -22,7 +22,7 @@ interface IHandshakeMessage {
   outFields?: string[]
 }
 
-const BROADCAST_INTERVAL = 100
+const BROADCAST_INTERVAL = 1000
 
 class StreamServer extends Server {
   constructor(options: ServerOptions & StreamServerOptions) {
@@ -85,7 +85,35 @@ class StreamServer extends Server {
       return;
     }
 
-    this._handshake(socket, message);
+    const socketInfo = this.socketInfo.get(socket);
+
+    // Still need to handle handshake
+    if (!socketInfo || !socketInfo.ready) {
+      this._handshake(socket, message);
+    }
+
+    else {
+      try {
+        const result = JSON.parse(message) ;
+
+        console.log("Got message", message);
+
+        if ("type" in result) {
+          switch (result.type) {
+            case "echo":
+              socket.send(JSON.stringify(result));
+              break;
+            case "echo-data":
+              socket.send(JSON.stringify(result.data));
+              break;
+          }
+        }
+      }
+      catch (e) {
+        console.debug("Got error decoding message", e);
+        socket.close();
+      }
+    }
   }
 
   private _onClose(socket: WebSocket, _code: number, _reason: string): void {
