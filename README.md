@@ -4,6 +4,8 @@ This project provides simple nodejs example websocket server showing how to crea
 
 This code should only be viewed as a reference, and is not production ready. A real implementation should take care to better handle such things as malicious or slow clients, robust logging, and other issues that may arise in production. 
 
+Also take a look at using [Client Side Stream Layers](https://developers.arcgis.com/javascript/latest/sample-code/layers-streamlayer-client/). This can potentially make integration easier with arbitrary WebSocket Services, though there is a performance tradeoff here as features will need to be serialized from user code to the worker where the StreamLayer logic lives. 
+
 ### Setup 
 First verify that you are using nodejs 14.x.x: 
 ```
