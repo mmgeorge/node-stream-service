@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
-  <title>Custom Websocket</title>
-  <style>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title>Custom Websocket</title>
+    <style>
     html,
     body {
       height: 100%;
@@ -13,8 +13,8 @@
       padding: 0;
     }
 
-   #viewDiv {
-       height: 100%;
+    #viewDiv {
+      height: 100%;
       width: 100%;
     }
 
@@ -24,126 +24,137 @@
       font-family: sans-serif;
     }
 
-   #info {
-       background: rgb(218 209 220);
-   }
-
-    #connectionStatus {
-        color: white;
-        background: #e33a3a;
-        padding: 8px 16px;
-        display: none;
+    #info {
+      background: rgb(218 209 220);
     }
 
-   #updateRate {
-       color: rgb(78, 78, 78);
-       background: rgb(218 209 220);
-       padding: 8px 16px;
-       display: none;
-   }
+    #connectionStatus {
+      color: white;
+      background: #e33a3a;
+      padding: 8px 16px;
+      display: none;
+    }
 
-  </style>
+    #updateRate {
+      color: rgb(78, 78, 78);
+      background: rgb(218 209 220);
+      padding: 8px 16px;
+      display: none;
+    }
 
-  <link
-    rel="stylesheet"
-    href="https://js.arcgis.com/next/esri/themes/light/main.css"
-  />
-  <script src="https://js.arcgis.com/next/"></script>
+    </style>
 
-  <script>
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/next/esri/themes/light/main.css"
+    />
+    <script src="https://js.arcgis.com/next/"></script>
+
+    <script>
     var streamLayer;
     var view;
     require([
       "esri/Map",
       "esri/views/MapView",
       "esri/layers/StreamLayer",
-    ], function(Map, MapView, StreamLayer) {
-      const layer = new StreamLayer({
-        popupTemplate: {
-          content: "OBJECTID={OBJECTID}, TRACKID={TRACKID}",
-        },
+      "esri/layers/FeatureLayer",
+    ], function(Map, MapView, StreamLayer, FeatureLayer) {
 
-        webSocketUrl: "ws://localhost:8000",
-
-        objectIdField: "OBJECTID",
-
-        fields: [
-          {
-            name: "OBJECTID",
-            alias: "ObjectId",
-            type: "oid",
+        // Stream layer connecting to our custom websocket service
+        const layer = new StreamLayer({
+          popupTemplate: {
+            content: "OBJECTID={OBJECTID}, TRACKID={TRACKID}",
           },
-          {
-            name: "TRACKID",
-            alias: "TrackId",
-            type: "oid",
-          }
-        ],
-
-        timeInfo: {
-          trackIdField: "TRACKID"
-        },
-
-        geometryType: "point",
-
-        maxReconnectionAttempts: 100,
-        maxReconnectionInterval: 10,
-
-        renderer: {
-          type: "simple",
-          symbol: {
-            type: "simple-marker",
-            size: "8px",
-            color: "gray",
+          webSocketUrl: "ws://localhost:8000",
+          objectIdField: "OBJECTID",
+          fields: [
+            {
+              name: "OBJECTID",
+              alias: "ObjectId",
+              type: "oid",
+            },
+            {
+              name: "TRACKID",
+              alias: "TrackId",
+              type: "oid",
+            }
+          ],
+          timeInfo: {
+            trackIdField: "TRACKID"
           },
-        },
-      });
+          geometryType: "point",
+          maxReconnectionAttempts: 100,
+          maxReconnectionInterval: 10,
+          renderer: {
+            type: "simple",
+            symbol: {
+              type: "simple-marker",
+              size: "8px",
+              color: "gray",
+            },
+          },
+        });
 
-      const map = new Map({
-        basemap: "gray",
-        layers: [ layer ]
-      });
-
-      view = new MapView({
-        container: "viewDiv",
-        zoom: 10,
-        center: [-74.05, 40.71],
-        map,
-      });
-
-      view.whenLayerView(layer).then(layerView => {
-        // Display connection status and current update rate
-        const connectionStatusDiv = document.getElementById("connectionStatus");
-        const updateRateDiv = document.getElementById("updateRate");
-        const info = document.getElementById("info");
-
-        layerView.on("update-rate", (updateRate) => {
-          updateRateDiv.innerHTML = `${updateRate.client} (${updateRate.websocket} service)`
+        // Display the railroads that we are used to generate feature in our stream service
+        const railroads = new FeatureLayer({
+          url: "http://services2.arcgis.com/FiaPA4ga0iQKduv3/arcgis/rest/services/Transportation_v1/FeatureServer/9", 
+          definitionExpression: "BASENAME='Seaboard Coast Line'" , 
+          minScale: 0, 
+          renderer: {
+            type: "simple",
+            symbol: {
+              type: "simple-line",
+              width: "1px",
+              color: "gray",
+            },
+          },
         })
 
-        view.ui.add(info, "top-right");
-
-        connectionStatusDiv.style.display = "inline-flex";
-        updateRateDiv.style.display = "inline-flex";
-
-        layerView.watch("connectionStatus", function(value) {
-          if (value === "connected") {
-            connectionStatusDiv.style.backgroundColor = "#4e4e4e";
-            connectionStatusDiv.innerHTML = "connected";
-          } else {
-            connectionStatusDiv.style.backgroundColor = "orange";
-            connectionStatusDiv.innerHTML = "reconnecting";
-          }
+        const map = new Map({
+          basemap: "gray",
+          layers: [ railroads, layer ]
         });
-      }).catch(e => console.log(e))
-    });
-  </script>
-</head>
-<body>
-  <div id="viewDiv"></div>
-  <div id="info">
-    <div id="connectionStatus" class="esri-widget">Disconnected</div>
-    <div id="updateRate" class="esri-widget">0 (0)</div>
-  </div>
-</body>
+
+        view = new MapView({
+          container: "viewDiv",
+          zoom: 8,
+          center: [-81.515, 27.665],
+          map,
+        });
+
+        view.whenLayerView(layer).then(layerView => {
+          // Display connection status and current update rate
+          const connectionStatusDiv = document.getElementById("connectionStatus");
+          const updateRateDiv = document.getElementById("updateRate");
+          const info = document.getElementById("info");
+
+          layerView.on("update-rate", (updateRate) => {
+            updateRateDiv.innerHTML = `${updateRate.client} (${updateRate.websocket} service)`
+          })
+
+          view.ui.add(info, "top-right");
+
+          connectionStatusDiv.style.display = "inline-flex";
+          updateRateDiv.style.display = "inline-flex";
+
+          layerView.watch("connectionStatus", function(value) {
+            if (value === "connected") {
+              connectionStatusDiv.style.backgroundColor = "#4e4e4e";
+              connectionStatusDiv.innerHTML = "connected";
+            } else {
+              connectionStatusDiv.style.backgroundColor = "orange";
+              connectionStatusDiv.innerHTML = "reconnecting";
+            }
+          });
+        }).catch(e => console.log(e))
+      });
+    </script>
+  </head>
+  <body>
+    <div id="viewDiv"></div>
+    <div id="info">
+      <div id="connectionStatus" class="esri-widget">Disconnected</div>
+      <div id="updateRate" class="esri-widget">0 (0)</div>
+    </div>
+  </body>
 </html>
