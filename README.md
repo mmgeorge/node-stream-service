@@ -1,3 +1,5 @@
+![image](https://github.com/user-attachments/assets/98652383-bad1-4f89-9ee1-687cdf85a0f7)
+
 This project provides simple nodejs example websocket server showing how to create a custom stream service that can interface with the ArcGIS 4.x Javascript API (4.17+). The underlying service tries to mock a routes stream by moving features along the polyline segments of a input polyline featureSet.
 
 This code should only be viewed as a reference, and is not production ready. A real implementation should take care to better handle such things as malicious or slow clients, robust logging, and other issues that may arise in production. 
